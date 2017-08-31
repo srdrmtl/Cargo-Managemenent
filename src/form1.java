@@ -1,8 +1,10 @@
 import java.awt.EventQueue;
 
+
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import java.sql.*;
 
 
 import javax.swing.SwingConstants;
@@ -17,17 +19,18 @@ import javax.swing.JOptionPane;
 
 import java.awt.CardLayout;
 import java.awt.Font;
+import java.awt.Image;
 
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
-import java.awt.Button;
-import java.awt.TextField;
+
 import java.awt.Cursor;
 
-import java.awt.Toolkit;
+
 import javax.swing.JTextPane;
+
 import javax.swing.border.LineBorder;
 import javax.swing.border.MatteBorder;
 
@@ -42,12 +45,24 @@ import javax.swing.JMenuItem;
 
 import javax.swing.JTextField;
 
-import java.awt.TextArea;
+
 
 import javax.swing.border.TitledBorder;
 
+import net.proteanit.sql.DbUtils;
+
 import javax.swing.JTextArea;
 import javax.swing.JRadioButton;
+
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.ListSelectionModel;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.image.ColorConvertOp;
+import java.io.Closeable;
+
+import javax.swing.JList;
 
 public class form1 {
 
@@ -63,31 +78,30 @@ public class form1 {
 	private JTextField txt_GuncelleSubeAdi;
 	private JTextField txt_GuncelleSubeMudur;
 	private JTextField txt_GuncelleSubeVergi;
-	private JTextField textField;
-	private JTextField textField_1;
-	private JTextField textField_2;
-	private JTextField textField_3;
-	private JTextField textField_4;
-	private JTextField textField_5;
-	private JTextField textField_6;
+	private JTextField txt_adminsubeadi;
+	private JTextField txt_adminsubemudur;
+	private JTextField txt_adminsubemail;
+	private JTextField txt_adminsubeuser;
+	private JTextField txt_adminsubepass;
+	private JTextField txt_GuncelleSubeKadi;
+	private JTextField txt_GuncelleSubePass;
 	private JTextField textField_7;
 	private JTextField textField_8;
 	private JTextField textField_9;
 	private JTextField textField_10;
 	private JTextField textField_12;
-	private JTextField textField_11;
-	private JTextField textField_13;
-	private JTextField textField_14;
-	private JTextField textField_15;
+	private JTextField txt_adminkullaniciad;
+	private JTextField txt_adminkullanicimail;
+	private JTextField txt_adminkullaniciuser;
+	private JTextField txt_adminkullanicisifre;
 	private JTextField textField_16;
 	private JTextField textField_17;
 	private JTextField textField_18;
 	private JTextField textField_19;
 	private JTextField textField_20;
-	private JTextField textField_23;
-	private JTextField textField_24;
-	private JTextField textField_25;
-	private JTextField textField_26;
+	private JTextField txt_kargoeklead;
+	private JTextField txt_kargoeklecins;
+	private JTextField txt_kargoekleagirlik;
 	private JTextField textField_27;
 	private JTextField textField_28;
 	private JTextField textField_22;
@@ -96,10 +110,10 @@ public class form1 {
 	private JTextField textField_31;
 	private JTextField textField_32;
 	private JTextField textField_33;
-	private JTextField textField_34;
-	private JTextField textField_35;
-	private JTextField textField_36;
-	private JTextField textField_37;
+	private JTextField txt_SubeKargoAD;
+	private JTextField txt_SubeKargoCins;
+	private JTextField txt_SubekargoAgirlik;
+	private JTextField txt_SubeKargoLokasyon;
 	private JTextField textField_38;
 	private JTextField textField_39;
 	private JTextField textField_40;
@@ -115,6 +129,7 @@ public class form1 {
 	private JTextField textField_48;
 	private JPasswordField passwordField_1;
 	private JPasswordField passwordField_2;
+	private JTextField txt_mainsorgula;
 	/**
 	 * Launch the application.
 	 */
@@ -134,8 +149,22 @@ public class form1 {
 	/**
 	 * Create the application.
 	 */
+	Connection connection = null;
+	private JTable table;
+	private JTable tablekargoguncelle;
+	private JTable tablelokasyonguncelle;
+	private JTable table_1;
+	private JTable table_2;
+	private JTable table_3;
+	private JTable table_4;
+	private JTable table_5;
+	private JTable table_6;
+	
 	public form1() {
+		
 		initialize();
+		
+		connection = Database.dbConnector();
 	}
 
 	/**
@@ -144,20 +173,19 @@ public class form1 {
 	private void initialize() {
 		frmCargoManagementV = new JFrame();
 		frmCargoManagementV.setResizable(false);
-		frmCargoManagementV.setIconImage(Toolkit.getDefaultToolkit().getImage(form1.class.getResource("/images/icon.png")));
 		frmCargoManagementV.setTitle("Cargo Management v1.0");
 		frmCargoManagementV.setBackground(Color.WHITE);
 		frmCargoManagementV.setBounds(100, 100, 800, 600);
 		frmCargoManagementV.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmCargoManagementV.getContentPane().setLayout(new CardLayout(0, 0));
-		
+		//resim degiskenlerim burada
+		Image logo = new ImageIcon(this.getClass().getResource("/logo.png")).getImage();
 		//Paneller Buraya
 		final JPanel main = new JPanel();
 		main.setAutoscrolls(false);
 		main.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		main.setBackground(new Color(192, 192, 192));
 		frmCargoManagementV.getContentPane().add(main, "name_70053018413817");
-		main.setLayout(null);
 		//******
 		final JPanel login = new JPanel();
 		login.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -166,6 +194,8 @@ public class form1 {
 		login.setBackground(new Color(192, 192, 192));
 		frmCargoManagementV.getContentPane().add(login, "name_70067586576876");
 		login.setLayout(null);
+		
+		
 		
 		JLabel lbl_LoginKadi = new JLabel("Kullan\u0131c\u0131 Ad\u0131 :");
 		lbl_LoginKadi.setFont(new Font("Modern No. 20", Font.PLAIN, 16));
@@ -191,7 +221,7 @@ public class form1 {
 		txt_LoginSifre.setColumns(10);
 		
 		JLabel img_LoginLogo = new JLabel("");
-		img_LoginLogo.setIcon(new ImageIcon(form1.class.getResource("/images/logo.png")));
+		img_LoginLogo.setIcon(new ImageIcon(logo));
 		img_LoginLogo.setBounds(304, 28, 177, 96);
 		login.add(img_LoginLogo);
 		
@@ -240,11 +270,49 @@ public class form1 {
 		register.add(txt_RegPass);
 		
 		JLabel img_RegLogo = new JLabel("");
-		img_RegLogo.setIcon(new ImageIcon(form1.class.getResource("/images/logo.png")));
+		img_RegLogo.setIcon(new ImageIcon(logo));
+		
 		img_RegLogo.setBounds(304, 28, 177, 96);
 		register.add(img_RegLogo);
 		
+		JTextPane txt_RegAdres = new JTextPane();
+		txt_RegAdres.setBounds(326, 383, 210, 109);
+		register.add(txt_RegAdres);
+		
 		JButton btn_RegKayit = new JButton("Kay\u0131t Ol");
+		btn_RegKayit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) 
+			{
+				
+				if(txt_RegPass.getText().equals(txt_RegPassagain.getText()))
+				{
+					try	
+					{
+						String query = "insert into Kullanici (Adsoyad,Email,Username,Password,Adres) VALUES(?,?,?,?,?)";
+						
+						PreparedStatement pst = connection.prepareStatement(query);
+						pst.setString(1, txt_RegAdSoyad.getText());
+						pst.setString(2, txt_RegMail.getText());
+						pst.setString(3, txt_RegKadi.getText());
+						pst.setString(4, txt_RegPass.getText());
+						pst.setString(5, txt_RegAdres.getText());
+						
+						pst.execute();
+						JOptionPane.showMessageDialog(null, "Kayýt Baþarýyla Tamamlandý");
+						
+						pst.close();
+					}
+					catch(Exception e)
+					{
+						JOptionPane.showMessageDialog(null, e);
+					}
+				}
+				else{
+					JOptionPane.showMessageDialog(null, "Þifreler Uyuþmuyor");
+				}
+
+			}
+		});
 		btn_RegKayit.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		btn_RegKayit.setForeground(Color.WHITE);
 		btn_RegKayit.setFont(new Font("Georgia", Font.PLAIN, 14));
@@ -259,7 +327,6 @@ public class form1 {
 		
 		JMenuItem mitem_RegHome = new JMenuItem("Anasayfa");
 		mitem_RegHome.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		mitem_RegHome.setIcon(new ImageIcon(form1.class.getResource("/images/home.png")));
 		mitem_RegHome.setBackground(new Color(192, 192, 192));
 		mitem_RegHome.setBounds(645, 11, 129, 22);
 		register.add(mitem_RegHome);
@@ -325,9 +392,7 @@ public class form1 {
 		txt_RegKadi.setBounds(326, 231, 210, 36);
 		register.add(txt_RegKadi);
 		
-		TextArea txtarea_RegMail = new TextArea();
-		txtarea_RegMail.setBounds(326, 375, 210, 111);
-		register.add(txtarea_RegMail);
+
 		//*****
 		final JPanel administrator = new JPanel();
 		administrator.setVisible(false);
@@ -337,7 +402,7 @@ public class form1 {
 		administrator.setLayout(null);
 		
 		JLabel lbl_AdminLogo = new JLabel("");
-		lbl_AdminLogo.setIcon(new ImageIcon(form1.class.getResource("/images/logo.png")));
+		lbl_AdminLogo.setIcon(new ImageIcon(logo));
 		lbl_AdminLogo.setBounds(10, 11, 177, 96);
 		administrator.add(lbl_AdminLogo);
 
@@ -465,8 +530,14 @@ public class form1 {
 		panel_AdminSecenekler.add(mitem_AdminCikisYap);
 		mitem_AdminCikisYap.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e){
-				JOptionPane.showConfirmDialog(null, "Çýkmak Ýstediðinize Emin misiniz?");
-			}
+
+				int confirmed = JOptionPane.showConfirmDialog(null,
+						"Çýkmak istediðinize emin misiniz?", "ÝYÝ DÜÞÜN !",
+						JOptionPane.YES_NO_OPTION);
+						if (confirmed == JOptionPane.YES_OPTION)
+						System.exit(0);
+						}
+			
 		});
 		JPanel panel_AdminIslemler = new JPanel();
 		panel_AdminIslemler.setBackground(new Color(46, 139, 87));
@@ -487,7 +558,7 @@ public class form1 {
 		panel_AdminGiris.add(lblYnetimPanelineHogeldiniz);
 		
 		JLabel label_12 = new JLabel("");
-		label_12.setIcon(new ImageIcon(form1.class.getResource("/images/logo.png")));
+		label_12.setIcon(new ImageIcon(logo));
 		label_12.setBounds(187, 173, 177, 96);
 		panel_AdminGiris.add(label_12);
 		
@@ -509,57 +580,47 @@ public class form1 {
 		panel_1.setLayout(null);
 		panel_1.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
 		panel_1.setBackground(new Color(211, 211, 211));
-		panel_1.setBounds(10, 11, 207, 421);
+		panel_1.setBounds(10, 11, 261, 421);
 		panel_AdminSubeGuncelle.add(panel_1);
-		
-		JLabel label = new JLabel("1. \u015Eube");
-		label.setFont(new Font("Georgia", Font.BOLD, 18));
-		label.setBounds(42, 11, 119, 32);
-		panel_1.add(label);
-		
-		JLabel label_1 = new JLabel("2. \u015Eube");
-		label_1.setFont(new Font("Georgia", Font.BOLD, 18));
-		label_1.setBounds(42, 54, 119, 32);
-		panel_1.add(label_1);
-		
-		JLabel label_2 = new JLabel("3. \u015Eube");
-		label_2.setFont(new Font("Georgia", Font.BOLD, 18));
-		label_2.setBounds(42, 97, 119, 32);
-		panel_1.add(label_2);
-		
-		JLabel label_3 = new JLabel("4. \u015Eube");
-		label_3.setFont(new Font("Georgia", Font.BOLD, 18));
-		label_3.setBounds(42, 140, 119, 32);
-		panel_1.add(label_3);
-		
-		JLabel label_4 = new JLabel("5. \u015Eube");
-		label_4.setFont(new Font("Georgia", Font.BOLD, 18));
-		label_4.setBounds(42, 183, 119, 32);
-		panel_1.add(label_4);
-		
-		JLabel label_5 = new JLabel("6. \u015Eube");
-		label_5.setFont(new Font("Georgia", Font.BOLD, 18));
-		label_5.setBounds(42, 226, 119, 32);
-		panel_1.add(label_5);
-		
-		JLabel label_6 = new JLabel("7. \u015Eube");
-		label_6.setFont(new Font("Georgia", Font.BOLD, 18));
-		label_6.setBounds(42, 269, 119, 32);
-		panel_1.add(label_6);
-		
-		JLabel label_7 = new JLabel("8. \u015Eube");
-		label_7.setFont(new Font("Georgia", Font.BOLD, 18));
-		label_7.setBounds(42, 312, 119, 32);
-		panel_1.add(label_7);
 		
 		JLabel lblGncellemekIstediinizubeyi = new JLabel("G\u00FCncellemek istedi\u011Finiz \u015Fubeyi se\u00E7iniz");
 		lblGncellemekIstediinizubeyi.setFont(new Font("Times New Roman", Font.ITALIC, 11));
-		lblGncellemekIstediinizubeyi.setBounds(10, 396, 187, 14);
+		lblGncellemekIstediinizubeyi.setBounds(23, 406, 187, 14);
 		panel_1.add(lblGncellemekIstediinizubeyi);
+		
+		JTextPane txt_GuncelleSubeAdres = new JTextPane();
+		txt_GuncelleSubeAdres.setBounds(351, 245, 134, 111);
+		panel_AdminSubeGuncelle.add(txt_GuncelleSubeAdres);
+		panel_AdminSubeEkle.setBackground(new Color(192, 192, 192));
+		panel_AdminIslemler.add(panel_AdminSubeEkle, "name_262221273242372");
+		panel_AdminSubeEkle.setLayout(null);
+		
+		table_1 = new JTable();
+		table_1.setBounds(10, 11, 241, 384);
+		panel_1.add(table_1);
+		table_1.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent arg0) {
+				 int satir = table_1.getSelectedRow(); //Seçilen satýrý bulduk
+				 txt_GuncelleSubeMudur.setText(String.valueOf(table_1.getValueAt(satir, 0)));
+				 txt_GuncelleSubeKadi.setText(String.valueOf(table_1.getValueAt(satir, 1)));
+				 txt_GuncelleSubeAdres.setText(String.valueOf(table_1.getValueAt(satir, 2)));
+			}
+		});
+		table_1.setModel(new DefaultTableModel(
+			new Object[][] {
+			},
+			new String[] {
+			}
+		));
+		
+		
+		table_1.setBackground(new Color(220, 220, 220));
+		
 		
 		JLabel label_8 = new JLabel("\u015Eube Ad\u0131 :");
 		label_8.setForeground(new Color(105, 105, 105));
-		label_8.setBounds(227, 48, 102, 25);
+		label_8.setBounds(277, 48, 64, 25);
 		panel_AdminSubeGuncelle.add(label_8);
 		
 		txt_GuncelleSubeAdi = new JTextField();
@@ -569,7 +630,7 @@ public class form1 {
 		
 		JLabel label_9 = new JLabel("\u015Eube M\u00FCd\u00FCr\u00FC :");
 		label_9.setForeground(new Color(105, 105, 105));
-		label_9.setBounds(227, 84, 102, 25);
+		label_9.setBounds(274, 84, 76, 25);
 		panel_AdminSubeGuncelle.add(label_9);
 		
 		txt_GuncelleSubeMudur = new JTextField();
@@ -579,7 +640,7 @@ public class form1 {
 		
 		JLabel label_10 = new JLabel("\u015Eube Vergi No :");
 		label_10.setForeground(new Color(105, 105, 105));
-		label_10.setBounds(227, 120, 102, 25);
+		label_10.setBounds(274, 120, 76, 25);
 		panel_AdminSubeGuncelle.add(label_10);
 		
 		txt_GuncelleSubeVergi = new JTextField();
@@ -589,14 +650,17 @@ public class form1 {
 		
 		JLabel label_11 = new JLabel("\u015Eube Adresi :");
 		label_11.setForeground(new Color(105, 105, 105));
-		label_11.setBounds(227, 245, 80, 25);
+		label_11.setBounds(281, 251, 69, 25);
 		panel_AdminSubeGuncelle.add(label_11);
 		
-		TextArea txtare_GuncelleSubeAdres = new TextArea();
-		txtare_GuncelleSubeAdres.setBounds(313, 240, 172, 123);
-		panel_AdminSubeGuncelle.add(txtare_GuncelleSubeAdres);
-		
 		JButton btn_SubeGuncelle = new JButton("G\u00FCncelle");
+		btn_SubeGuncelle.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+				
+				
+			}
+		});
 		btn_SubeGuncelle.setForeground(Color.WHITE);
 		btn_SubeGuncelle.setFont(new Font("Georgia", Font.PLAIN, 14));
 		btn_SubeGuncelle.setBackground(new Color(102, 153, 255));
@@ -605,67 +669,93 @@ public class form1 {
 		
 		JLabel label_17 = new JLabel("Kullan\u0131c\u0131 Ad\u0131 :");
 		label_17.setForeground(new Color(105, 105, 105));
-		label_17.setBounds(227, 156, 102, 25);
+		label_17.setBounds(277, 156, 64, 25);
 		panel_AdminSubeGuncelle.add(label_17);
 		
-		textField_5 = new JTextField();
-		textField_5.setColumns(10);
-		textField_5.setBounds(351, 156, 134, 25);
-		panel_AdminSubeGuncelle.add(textField_5);
+		txt_GuncelleSubeKadi = new JTextField();
+		txt_GuncelleSubeKadi.setColumns(10);
+		txt_GuncelleSubeKadi.setBounds(351, 156, 134, 25);
+		panel_AdminSubeGuncelle.add(txt_GuncelleSubeKadi);
 		
 		JLabel label_18 = new JLabel("\u015Eifre :");
 		label_18.setForeground(new Color(105, 105, 105));
-		label_18.setBounds(227, 192, 102, 25);
+		label_18.setBounds(308, 192, 42, 25);
 		panel_AdminSubeGuncelle.add(label_18);
 		
-		textField_6 = new JTextField();
-		textField_6.setColumns(10);
-		textField_6.setBounds(351, 192, 134, 25);
-		panel_AdminSubeGuncelle.add(textField_6);
-		panel_AdminSubeEkle.setBackground(new Color(192, 192, 192));
-		panel_AdminIslemler.add(panel_AdminSubeEkle, "name_262221273242372");
-		panel_AdminSubeEkle.setLayout(null);
+		txt_GuncelleSubePass = new JTextField();
+		txt_GuncelleSubePass.setColumns(10);
+		txt_GuncelleSubePass.setBounds(351, 192, 134, 25);
+		panel_AdminSubeGuncelle.add(txt_GuncelleSubePass);
+		
+		
 		
 		JLabel label_13 = new JLabel("\u015Eube Ad\u0131 :");
 		label_13.setForeground(new Color(105, 105, 105));
 		label_13.setBounds(154, 54, 102, 25);
 		panel_AdminSubeEkle.add(label_13);
 		
-		textField = new JTextField();
-		textField.setColumns(10);
-		textField.setBounds(278, 54, 134, 25);
-		panel_AdminSubeEkle.add(textField);
+		txt_adminsubeadi = new JTextField();
+		txt_adminsubeadi.setColumns(10);
+		txt_adminsubeadi.setBounds(278, 54, 134, 25);
+		panel_AdminSubeEkle.add(txt_adminsubeadi);
 		
 		JLabel label_14 = new JLabel("\u015Eube M\u00FCd\u00FCr\u00FC :");
 		label_14.setForeground(new Color(105, 105, 105));
 		label_14.setBounds(154, 90, 102, 25);
 		panel_AdminSubeEkle.add(label_14);
 		
-		textField_1 = new JTextField();
-		textField_1.setColumns(10);
-		textField_1.setBounds(278, 90, 134, 25);
-		panel_AdminSubeEkle.add(textField_1);
+		txt_adminsubemudur = new JTextField();
+		txt_adminsubemudur.setColumns(10);
+		txt_adminsubemudur.setBounds(278, 90, 134, 25);
+		panel_AdminSubeEkle.add(txt_adminsubemudur);
 		
-		JLabel label_15 = new JLabel("\u015Eube Vergi No :");
-		label_15.setForeground(new Color(105, 105, 105));
-		label_15.setBounds(154, 126, 102, 25);
-		panel_AdminSubeEkle.add(label_15);
+		JLabel lblEmail_1 = new JLabel("Email :");
+		lblEmail_1.setForeground(new Color(105, 105, 105));
+		lblEmail_1.setBounds(154, 126, 102, 25);
+		panel_AdminSubeEkle.add(lblEmail_1);
 		
-		textField_2 = new JTextField();
-		textField_2.setColumns(10);
-		textField_2.setBounds(278, 126, 134, 25);
-		panel_AdminSubeEkle.add(textField_2);
+		txt_adminsubemail = new JTextField();
+		txt_adminsubemail.setColumns(10);
+		txt_adminsubemail.setBounds(278, 126, 134, 25);
+		panel_AdminSubeEkle.add(txt_adminsubemail);
 		
 		JLabel label_16 = new JLabel("\u015Eube Adresi :");
 		label_16.setForeground(new Color(105, 105, 105));
 		label_16.setBounds(154, 243, 80, 25);
 		panel_AdminSubeEkle.add(label_16);
 		
-		TextArea textArea = new TextArea();
-		textArea.setBounds(240, 238, 172, 123);
-		panel_AdminSubeEkle.add(textArea);
+		JTextPane txt_adminsubeadres = new JTextPane();
+		txt_adminsubeadres.setBounds(278, 243, 134, 101);
+		panel_AdminSubeEkle.add(txt_adminsubeadres);
 		
 		JButton btnEkle = new JButton("Ekle");
+		btnEkle.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+				try	
+				{
+					String query = "insert into Kullanici (Adsoyad,Email,Username,Password,Adres,Subemi) VALUES(?,?,?,?,?,'true')";
+					
+					PreparedStatement pst = connection.prepareStatement(query);
+					pst.setString(1,txt_adminsubeadi.getText());
+					pst.setString(2, txt_adminsubemail.getText());
+					pst.setString(3, txt_adminsubeuser.getText());
+					pst.setString(4, txt_adminsubepass.getText());
+					pst.setString(5, txt_adminsubeadres.getText());
+					
+					pst.execute();
+					JOptionPane.showMessageDialog(null, "Kayýt Baþarýyla Tamamlandý");
+					
+					pst.close();
+				}
+				catch(Exception e)
+				{
+					JOptionPane.showMessageDialog(null, "Farklý Bir Kullanýcý Adý Girin");
+				}
+				
+				
+			}
+		});
 		btnEkle.setForeground(Color.WHITE);
 		btnEkle.setFont(new Font("Georgia", Font.PLAIN, 14));
 		btnEkle.setBackground(new Color(102, 153, 255));
@@ -684,20 +774,22 @@ public class form1 {
 		lblKullancAd.setBounds(154, 162, 102, 25);
 		panel_AdminSubeEkle.add(lblKullancAd);
 		
-		textField_3 = new JTextField();
-		textField_3.setColumns(10);
-		textField_3.setBounds(278, 162, 134, 25);
-		panel_AdminSubeEkle.add(textField_3);
+		txt_adminsubeuser = new JTextField();
+		txt_adminsubeuser.setColumns(10);
+		txt_adminsubeuser.setBounds(278, 162, 134, 25);
+		panel_AdminSubeEkle.add(txt_adminsubeuser);
 		
 		JLabel lblifre = new JLabel("\u015Eifre :");
 		lblifre.setForeground(new Color(105, 105, 105));
 		lblifre.setBounds(154, 198, 102, 25);
 		panel_AdminSubeEkle.add(lblifre);
 		
-		textField_4 = new JTextField();
-		textField_4.setColumns(10);
-		textField_4.setBounds(278, 198, 134, 25);
-		panel_AdminSubeEkle.add(textField_4);
+		txt_adminsubepass = new JTextField();
+		txt_adminsubepass.setColumns(10);
+		txt_adminsubepass.setBounds(278, 198, 134, 25);
+		panel_AdminSubeEkle.add(txt_adminsubepass);
+		
+		
 		
 		JPanel panel_AdminSubeSil = new JPanel();
 		panel_AdminSubeSil.setVisible(false);
@@ -712,55 +804,27 @@ public class form1 {
 		panel.setBounds(10, 11, 207, 421);
 		panel_AdminSubeSil.add(panel);
 		
-		JLabel label_19 = new JLabel("1. \u015Eube");
-		label_19.setFont(new Font("Georgia", Font.BOLD, 18));
-		label_19.setBounds(42, 11, 119, 32);
-		panel.add(label_19);
-		
-		JLabel label_20 = new JLabel("2. \u015Eube");
-		label_20.setFont(new Font("Georgia", Font.BOLD, 18));
-		label_20.setBounds(42, 54, 119, 32);
-		panel.add(label_20);
-		
-		JLabel label_21 = new JLabel("3. \u015Eube");
-		label_21.setFont(new Font("Georgia", Font.BOLD, 18));
-		label_21.setBounds(42, 97, 119, 32);
-		panel.add(label_21);
-		
-		JLabel label_22 = new JLabel("4. \u015Eube");
-		label_22.setFont(new Font("Georgia", Font.BOLD, 18));
-		label_22.setBounds(42, 140, 119, 32);
-		panel.add(label_22);
-		
-		JLabel label_23 = new JLabel("5. \u015Eube");
-		label_23.setFont(new Font("Georgia", Font.BOLD, 18));
-		label_23.setBounds(42, 183, 119, 32);
-		panel.add(label_23);
-		
-		JLabel label_24 = new JLabel("6. \u015Eube");
-		label_24.setFont(new Font("Georgia", Font.BOLD, 18));
-		label_24.setBounds(42, 226, 119, 32);
-		panel.add(label_24);
-		
-		JLabel label_25 = new JLabel("7. \u015Eube");
-		label_25.setFont(new Font("Georgia", Font.BOLD, 18));
-		label_25.setBounds(42, 269, 119, 32);
-		panel.add(label_25);
-		
-		JLabel label_26 = new JLabel("8. \u015Eube");
-		label_26.setFont(new Font("Georgia", Font.BOLD, 18));
-		label_26.setBounds(42, 312, 119, 32);
-		panel.add(label_26);
-		
 		JLabel lblSilmekIstediinizubeyi = new JLabel("Silmek istedi\u011Finiz \u015Fubeyi se\u00E7iniz");
 		lblSilmekIstediinizubeyi.setFont(new Font("Times New Roman", Font.ITALIC, 11));
 		lblSilmekIstediinizubeyi.setBounds(10, 396, 187, 14);
 		panel.add(lblSilmekIstediinizubeyi);
 		
-		Button button = new Button("Sil");
-		button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		button.setBounds(235, 382, 227, 50);
-		panel_AdminSubeSil.add(button);
+		table_2 = new JTable();
+		table_2.setBackground(new Color(220, 220, 220));
+		table_2.setBounds(10, 60, 187, 322);
+		panel.add(table_2);
+		
+		JLabel lblNewLabel = new JLabel("\u015Eube Ad\u0131");
+		lblNewLabel.setBounds(10, 35, 58, 14);
+		panel.add(lblNewLabel);
+		
+		JLabel lblAdres_2 = new JLabel("Adres");
+		lblAdres_2.setBounds(98, 35, 46, 14);
+		panel.add(lblAdres_2);
+		
+		JButton btnNewButton = new JButton("SÝL");
+		btnNewButton.setBounds(227, 353, 251, 79);
+		panel_AdminSubeSil.add(btnNewButton);
 		
 		JPanel panel_AdminKullaniciGuncelle = new JPanel();
 		panel_AdminKullaniciGuncelle.setVisible(false);
@@ -780,14 +844,6 @@ public class form1 {
 		lblGncellemekIstediinizKullanc.setBounds(10, 396, 187, 14);
 		panel_2.add(lblGncellemekIstediinizKullanc);
 		
-		JTextPane txtpnBuAlandaSral = new JTextPane();
-		txtpnBuAlandaSral.setEditable(false);
-		txtpnBuAlandaSral.setBackground(new Color(220, 220, 220));
-		txtpnBuAlandaSral.setFont(new Font("Times New Roman", Font.ITALIC, 14));
-		txtpnBuAlandaSral.setText("Bu alanda s\u0131ral\u0131 bir \u015Fekilde kullan\u0131c\u0131 listesini g\u00F6receksiniz...");
-		txtpnBuAlandaSral.setBounds(10, 70, 187, 196);
-		panel_2.add(txtpnBuAlandaSral);
-		
 		textField_12 = new JTextField();
 		textField_12.setBounds(37, 11, 160, 28);
 		panel_2.add(textField_12);
@@ -796,6 +852,11 @@ public class form1 {
 		JLabel lblAra = new JLabel("Ara :");
 		lblAra.setBounds(10, 18, 46, 14);
 		panel_2.add(lblAra);
+		
+		table_5 = new JTable();
+		table_5.setBackground(new Color(192, 192, 192));
+		table_5.setBounds(10, 53, 187, 332);
+		panel_2.add(table_5);
 		
 		JLabel lblKullancAd_1 = new JLabel("Ad Soyad");
 		lblKullancAd_1.setForeground(new Color(105, 105, 105));
@@ -832,10 +893,6 @@ public class form1 {
 		lblAdres.setBounds(227, 192, 80, 25);
 		panel_AdminKullaniciGuncelle.add(lblAdres);
 		
-		TextArea textArea_1 = new TextArea();
-		textArea_1.setBounds(313, 187, 172, 123);
-		panel_AdminKullaniciGuncelle.add(textArea_1);
-		
 		JButton button_1 = new JButton("G\u00FCncelle");
 		button_1.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		button_1.setForeground(Color.WHITE);
@@ -854,6 +911,10 @@ public class form1 {
 		textField_10.setBounds(351, 156, 134, 25);
 		panel_AdminKullaniciGuncelle.add(textField_10);
 		
+		JTextPane textPane_16 = new JTextPane();
+		textPane_16.setBounds(351, 197, 134, 125);
+		panel_AdminKullaniciGuncelle.add(textPane_16);
+		
 		JPanel panel_AdminKullaniciEkle = new JPanel();
 		panel_AdminKullaniciEkle.setVisible(false);
 		panel_AdminKullaniciEkle.setBackground(new Color(192, 192, 192));
@@ -865,51 +926,83 @@ public class form1 {
 		label_27.setBounds(153, 93, 102, 25);
 		panel_AdminKullaniciEkle.add(label_27);
 		
-		textField_11 = new JTextField();
-		textField_11.setColumns(10);
-		textField_11.setBounds(277, 93, 134, 25);
-		panel_AdminKullaniciEkle.add(textField_11);
+		txt_adminkullaniciad = new JTextField();
+		txt_adminkullaniciad.setColumns(10);
+		txt_adminkullaniciad.setBounds(277, 93, 134, 25);
+		panel_AdminKullaniciEkle.add(txt_adminkullaniciad);
 		
 		JLabel label_28 = new JLabel("E-mail :");
 		label_28.setForeground(new Color(105, 105, 105));
 		label_28.setBounds(153, 129, 102, 25);
 		panel_AdminKullaniciEkle.add(label_28);
 		
-		textField_13 = new JTextField();
-		textField_13.setColumns(10);
-		textField_13.setBounds(277, 129, 134, 25);
-		panel_AdminKullaniciEkle.add(textField_13);
+		txt_adminkullanicimail = new JTextField();
+		txt_adminkullanicimail.setColumns(10);
+		txt_adminkullanicimail.setBounds(277, 129, 134, 25);
+		panel_AdminKullaniciEkle.add(txt_adminkullanicimail);
 		
 		JLabel label_29 = new JLabel("Kullan\u0131c\u0131 Ad\u0131 :");
 		label_29.setForeground(new Color(105, 105, 105));
 		label_29.setBounds(153, 165, 102, 25);
 		panel_AdminKullaniciEkle.add(label_29);
 		
-		textField_14 = new JTextField();
-		textField_14.setColumns(10);
-		textField_14.setBounds(277, 165, 134, 25);
-		panel_AdminKullaniciEkle.add(textField_14);
+		txt_adminkullaniciuser = new JTextField();
+		txt_adminkullaniciuser.setColumns(10);
+		txt_adminkullaniciuser.setBounds(277, 165, 134, 25);
+		panel_AdminKullaniciEkle.add(txt_adminkullaniciuser);
 		
 		JLabel label_30 = new JLabel("\u015Eifre");
 		label_30.setForeground(new Color(105, 105, 105));
 		label_30.setBounds(153, 201, 102, 25);
 		panel_AdminKullaniciEkle.add(label_30);
 		
-		textField_15 = new JTextField();
-		textField_15.setColumns(10);
-		textField_15.setBounds(277, 201, 134, 25);
-		panel_AdminKullaniciEkle.add(textField_15);
+		txt_adminkullanicisifre = new JTextField();
+		txt_adminkullanicisifre.setColumns(10);
+		txt_adminkullanicisifre.setBounds(277, 201, 134, 25);
+		panel_AdminKullaniciEkle.add(txt_adminkullanicisifre);
 		
 		JLabel label_31 = new JLabel("Adres :");
 		label_31.setForeground(new Color(105, 105, 105));
 		label_31.setBounds(153, 237, 80, 25);
 		panel_AdminKullaniciEkle.add(label_31);
 		
-		TextArea textArea_2 = new TextArea();
-		textArea_2.setBounds(239, 232, 172, 123);
-		panel_AdminKullaniciEkle.add(textArea_2);
+		JTextPane txt_adminkullaniciadres = new JTextPane();
+		txt_adminkullaniciadres.setBounds(277, 242, 134, 107);
+		panel_AdminKullaniciEkle.add(txt_adminkullaniciadres);
+		
 		
 		JButton btnEkle_2 = new JButton("Ekle");
+		btnEkle_2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				if(txt_RegPass.getText().equals(txt_RegPassagain.getText()))
+				{
+					try	
+					{
+						String query = "insert into Kullanici (Adsoyad,Email,Username,Password,Adres) VALUES(?,?,?,?,?)";
+						
+						PreparedStatement pst = connection.prepareStatement(query);
+						pst.setString(1, txt_adminkullaniciad.getText());
+						pst.setString(2, txt_adminkullanicimail.getText());
+						pst.setString(3, txt_adminkullaniciuser.getText());
+						pst.setString(4, txt_adminkullanicisifre.getText());
+						pst.setString(5, txt_adminkullaniciadres.getText());
+						
+						pst.execute();
+						JOptionPane.showMessageDialog(null, "Kayýt Baþarýyla Tamamlandý");
+						
+						pst.close();
+					}
+					catch(Exception E)
+					{
+						JOptionPane.showMessageDialog(null, E);
+					}
+				}
+				else{
+					JOptionPane.showMessageDialog(null, "Þifreler Uyuþmuyor");
+				}
+			}
+		});
 		btnEkle_2.setForeground(Color.WHITE);
 		btnEkle_2.setFont(new Font("Georgia", Font.PLAIN, 14));
 		btnEkle_2.setBackground(new Color(102, 153, 255));
@@ -922,6 +1015,7 @@ public class form1 {
 		label_32.setBorder(new LineBorder(new Color(128, 0, 0)));
 		label_32.setBounds(176, 31, 235, 32);
 		panel_AdminKullaniciEkle.add(label_32);
+		
 		
 		JPanel panel_AdminKullaniciSil = new JPanel();
 		panel_AdminKullaniciSil.setVisible(false);
@@ -941,14 +1035,6 @@ public class form1 {
 		lblSilmekIstediinizKullanc.setBounds(10, 396, 187, 14);
 		panel_3.add(lblSilmekIstediinizKullanc);
 		
-		JTextPane textPane = new JTextPane();
-		textPane.setText("Bu alanda s\u0131ral\u0131 bir \u015Fekilde kullan\u0131c\u0131 listesini g\u00F6receksiniz...");
-		textPane.setFont(new Font("Times New Roman", Font.ITALIC, 14));
-		textPane.setEditable(false);
-		textPane.setBackground(new Color(220, 220, 220));
-		textPane.setBounds(10, 70, 187, 196);
-		panel_3.add(textPane);
-		
 		textField_16 = new JTextField();
 		textField_16.setColumns(10);
 		textField_16.setBounds(37, 11, 160, 28);
@@ -958,9 +1044,14 @@ public class form1 {
 		label_34.setBounds(10, 18, 46, 14);
 		panel_3.add(label_34);
 		
-		Button button_3 = new Button("Sil");
-		button_3.setBounds(247, 382, 227, 50);
-		panel_AdminKullaniciSil.add(button_3);
+		table_6 = new JTable();
+		table_6.setBackground(new Color(220, 220, 220));
+		table_6.setBounds(10, 51, 187, 334);
+		panel_3.add(table_6);
+		
+		JButton btnNewButton_1 = new JButton("S\u0130L");
+		btnNewButton_1.setBounds(227, 353, 257, 79);
+		panel_AdminKullaniciSil.add(btnNewButton_1);
 		
 		JPanel panel_AdminKargoGuncelle = new JPanel();
 		panel_AdminKargoGuncelle.setBackground(new Color(192, 192, 192));
@@ -975,19 +1066,6 @@ public class form1 {
 		panel_4.setBounds(10, 11, 207, 212);
 		panel_AdminKargoGuncelle.add(panel_4);
 		
-		JLabel label_33 = new JLabel("Silmek istedi\u011Finiz kullan\u0131c\u0131\u0131 se\u00E7iniz");
-		label_33.setFont(new Font("Times New Roman", Font.ITALIC, 11));
-		label_33.setBounds(10, 190, 187, 14);
-		panel_4.add(label_33);
-		
-		JTextPane txtpnBuAlandaSral_1 = new JTextPane();
-		txtpnBuAlandaSral_1.setText("Bu alanda s\u0131ral\u0131 bir \u015Fekilde i\u015Flem g\u00F6rmekte olan kargolar\u0131n , kargo takip numaralar\u0131n\u0131 g\u00F6receksiniz...");
-		txtpnBuAlandaSral_1.setFont(new Font("Times New Roman", Font.ITALIC, 14));
-		txtpnBuAlandaSral_1.setEditable(false);
-		txtpnBuAlandaSral_1.setBackground(new Color(220, 220, 220));
-		txtpnBuAlandaSral_1.setBounds(10, 77, 187, 88);
-		panel_4.add(txtpnBuAlandaSral_1);
-		
 		textField_17 = new JTextField();
 		textField_17.setColumns(10);
 		textField_17.setBounds(10, 38, 187, 28);
@@ -998,6 +1076,32 @@ public class form1 {
 		lblKargoTakipNo.setFont(new Font("Times New Roman", Font.PLAIN, 14));
 		lblKargoTakipNo.setBounds(54, 11, 99, 21);
 		panel_4.add(lblKargoTakipNo);
+		
+		tablekargoguncelle = new JTable();
+		tablekargoguncelle.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent arg0) {
+				
+				int satir = tablekargoguncelle.getSelectedRow();
+				String no = tablekargoguncelle.getValueAt(satir, 0).toString();
+				
+				try
+				{
+					String query2 = "Select Konum from Lokasyon where Lokasyonid='"+no+"'";
+					PreparedStatement pst2 = connection.prepareStatement(query2);
+					ResultSet rs2= pst2.executeQuery();
+					tablelokasyonguncelle.setModel(DbUtils.resultSetToTableModel(rs2));
+				}
+				catch(Exception E){
+					JOptionPane.showMessageDialog(null, E);
+				}
+				
+			}
+		});
+		tablekargoguncelle.setBackground(new Color(220, 220, 220));
+		tablekargoguncelle.setBounds(10, 65, 187, 136);
+		panel_4.add(tablekargoguncelle);
+		
 		
 		JPanel panel_5 = new JPanel();
 		panel_5.setBackground(new Color(220, 220, 220));
@@ -1076,10 +1180,10 @@ public class form1 {
 		rdbtnTeslimEdildi.setBounds(211, 362, 89, 23);
 		panel_5.add(rdbtnTeslimEdildi);
 		
-		JTextArea textArea_13 = new JTextArea();
-		textArea_13.setBackground(SystemColor.activeCaption);
-		textArea_13.setBounds(114, 122, 186, 69);
-		panel_5.add(textArea_13);
+		JTextArea txt_lokasyonadminkargo = new JTextArea();
+		txt_lokasyonadminkargo.setBackground(SystemColor.activeCaption);
+		txt_lokasyonadminkargo.setBounds(114, 122, 186, 69);
+		panel_5.add(txt_lokasyonadminkargo);
 		
 		JPanel panel_6 = new JPanel();
 		panel_6.setBackground(new Color(220, 220, 220));
@@ -1088,13 +1192,26 @@ public class form1 {
 		panel_AdminKargoGuncelle.add(panel_6);
 		panel_6.setLayout(null);
 		
-		JTextPane txtpnBuAlandaKargonun = new JTextPane();
-		txtpnBuAlandaKargonun.setText("Bu alanda kargonun g\u00FCncellenmi\u015F lokasyonlar\u0131 alt alta \u00E7\u0131kacakt\u0131r. \u0130stedi\u011Finiz lokasyonu se\u00E7ip yan tarafta de\u011Fi\u015Ftirebilir veya en sona yeni lokasyon ekleyebilirsiniz.");
-		txtpnBuAlandaKargonun.setFont(new Font("Times New Roman", Font.ITALIC, 14));
-		txtpnBuAlandaKargonun.setEditable(false);
-		txtpnBuAlandaKargonun.setBackground(new Color(220, 220, 220));
-		txtpnBuAlandaKargonun.setBounds(10, 26, 178, 136);
-		panel_6.add(txtpnBuAlandaKargonun);
+		JLabel lblGetiiLokasyonlar = new JLabel("Ge\u00E7ti\u011Fi Lokasyonlar");
+		lblGetiiLokasyonlar.setForeground(SystemColor.controlDkShadow);
+		lblGetiiLokasyonlar.setFont(new Font("Times New Roman", Font.PLAIN, 14));
+		lblGetiiLokasyonlar.setBounds(44, 11, 130, 21);
+		panel_6.add(lblGetiiLokasyonlar);
+		
+		tablelokasyonguncelle = new JTable();
+		tablelokasyonguncelle.setBounds(21, 33, 187, 154);
+		panel_6.add(tablelokasyonguncelle);
+		tablelokasyonguncelle.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				
+				int satir = tablelokasyonguncelle.getSelectedRow();
+				txt_lokasyonadminkargo.setText(String.valueOf(tablelokasyonguncelle.getValueAt(satir, 0)));
+				
+			
+			}
+		});
+		tablelokasyonguncelle.setBackground(new Color(220, 220, 220));
 		
 		JPanel panel_AdminKargoEkle = new JPanel();
 		panel_AdminKargoEkle.setBackground(new Color(192, 192, 192));
@@ -1114,64 +1231,90 @@ public class form1 {
 		label_36.setBounds(10, 57, 102, 25);
 		panel_7.add(label_36);
 		
-		textField_23 = new JTextField();
-		textField_23.setFont(new Font("Times New Roman", Font.PLAIN, 11));
-		textField_23.setColumns(10);
-		textField_23.setBounds(114, 55, 186, 30);
-		panel_7.add(textField_23);
+		txt_kargoeklead = new JTextField();
+		txt_kargoeklead.setFont(new Font("Times New Roman", Font.PLAIN, 11));
+		txt_kargoeklead.setColumns(10);
+		txt_kargoeklead.setBounds(114, 55, 186, 30);
+		panel_7.add(txt_kargoeklead);
 		
 		JLabel label_37 = new JLabel("Kargo Cinsi");
 		label_37.setForeground(new Color(105, 105, 105));
 		label_37.setBounds(10, 95, 102, 25);
 		panel_7.add(label_37);
 		
-		textField_24 = new JTextField();
-		textField_24.setFont(new Font("Times New Roman", Font.PLAIN, 11));
-		textField_24.setColumns(10);
-		textField_24.setBounds(114, 93, 186, 30);
-		panel_7.add(textField_24);
+		txt_kargoeklecins = new JTextField();
+		txt_kargoeklecins.setFont(new Font("Times New Roman", Font.PLAIN, 11));
+		txt_kargoeklecins.setColumns(10);
+		txt_kargoeklecins.setBounds(114, 93, 186, 30);
+		panel_7.add(txt_kargoeklecins);
 		
 		JLabel label_38 = new JLabel("A\u011F\u0131rl\u0131k");
 		label_38.setForeground(new Color(105, 105, 105));
 		label_38.setBounds(10, 133, 102, 25);
 		panel_7.add(label_38);
 		
-		textField_25 = new JTextField();
-		textField_25.setFont(new Font("Times New Roman", Font.PLAIN, 11));
-		textField_25.setColumns(10);
-		textField_25.setBounds(114, 131, 186, 30);
-		panel_7.add(textField_25);
+		txt_kargoekleagirlik = new JTextField();
+		txt_kargoekleagirlik.setFont(new Font("Times New Roman", Font.PLAIN, 11));
+		txt_kargoekleagirlik.setColumns(10);
+		txt_kargoekleagirlik.setBounds(114, 131, 186, 30);
+		panel_7.add(txt_kargoekleagirlik);
 		
 		JLabel label_39 = new JLabel("G\u00F6nderim Adresi :");
 		label_39.setForeground(new Color(105, 105, 105));
-		label_39.setBounds(10, 201, 102, 25);
+		label_39.setBounds(10, 163, 102, 25);
 		panel_7.add(label_39);
 		
-		JTextArea textArea_5 = new JTextArea();
-		textArea_5.setBounds(114, 206, 186, 69);
-		panel_7.add(textArea_5);
+		JTextArea txt_kargoeklebaslangicadres = new JTextArea();
+		txt_kargoeklebaslangicadres.setBounds(114, 168, 186, 69);
+		panel_7.add(txt_kargoeklebaslangicadres);
 		
 		JLabel label_40 = new JLabel("Var\u0131\u015F Adresi :");
 		label_40.setForeground(new Color(105, 105, 105));
-		label_40.setBounds(10, 282, 102, 25);
+		label_40.setBounds(10, 244, 102, 25);
 		panel_7.add(label_40);
 		
-		JTextArea textArea_6 = new JTextArea();
-		textArea_6.setBounds(114, 282, 186, 69);
-		panel_7.add(textArea_6);
-		
-		JLabel label_41 = new JLabel("Lokasyon :");
-		label_41.setForeground(new Color(105, 105, 105));
-		label_41.setBounds(10, 171, 102, 25);
-		panel_7.add(label_41);
-		
-		textField_26 = new JTextField();
-		textField_26.setFont(new Font("Times New Roman", Font.PLAIN, 11));
-		textField_26.setColumns(10);
-		textField_26.setBounds(114, 169, 186, 30);
-		panel_7.add(textField_26);
+		JTextArea txt_kargoeklebitisadres = new JTextArea();
+		txt_kargoeklebitisadres.setBounds(114, 244, 186, 69);
+		panel_7.add(txt_kargoeklebitisadres);
 		
 		JButton btnEkle_1 = new JButton("Ekle");
+		btnEkle_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+				
+				if(txt_kargoeklead.getText().isEmpty() || txt_kargoeklecins.getText().isEmpty() || 
+						
+				txt_kargoekleagirlik.getText().isEmpty() || txt_kargoeklebaslangicadres.getText().isEmpty() || 
+				
+				txt_kargoeklebitisadres.getText().isEmpty())
+					
+				{
+					
+					JOptionPane.showMessageDialog(null, "Tüm Alanlarý Doldurun");
+				}
+				else{
+				try	
+				{
+					String query = "insert into Kargo (Adsoyad,Cins,Agirlik,BaslangicAdres,BitisAdres) VALUES(?,?,?,?,?)";
+					
+					PreparedStatement pst = connection.prepareStatement(query);
+					pst.setString(1, txt_kargoeklead.getText());
+					pst.setString(2, txt_kargoeklecins.getText());
+					pst.setString(3, txt_kargoekleagirlik.getText());
+					pst.setString(4, txt_kargoeklebaslangicadres.getText());
+					pst.setString(5, txt_kargoeklebitisadres.getText());
+					
+					pst.execute();
+					JOptionPane.showMessageDialog(null, "Kayýt Baþarýyla Tamamlandý");
+					
+					pst.close();
+				}
+				catch(Exception e)
+				{
+					JOptionPane.showMessageDialog(null, "Kayýt Eklenemedi");
+				}
+			} }
+		});
 		btnEkle_1.setForeground(Color.WHITE);
 		btnEkle_1.setFont(new Font("Georgia", Font.PLAIN, 14));
 		btnEkle_1.setBackground(new Color(102, 153, 255));
@@ -1218,9 +1361,9 @@ public class form1 {
 		label_43.setBounds(10, 18, 46, 14);
 		panel_8.add(label_43);
 		
-		Button button_5 = new Button("Sil");
-		button_5.setBounds(10, 361, 227, 50);
-		panel_8.add(button_5);
+		JButton btnNewButton_2 = new JButton("S\u0130L");
+		btnNewButton_2.setBounds(10, 349, 228, 61);
+		panel_8.add(btnNewButton_2);
 		
 		JPanel panel_9 = new JPanel();
 		panel_9.setBackground(new Color(192, 192, 192));
@@ -1246,9 +1389,9 @@ public class form1 {
 		label_42.setBounds(10, 18, 46, 14);
 		panel_9.add(label_42);
 		
-		Button button_6 = new Button("Sil");
-		button_6.setBounds(10, 361, 227, 50);
-		panel_9.add(button_6);
+		JButton btnNewButton_3 = new JButton("S\u0130L");
+		btnNewButton_3.setBounds(10, 349, 228, 61);
+		panel_9.add(btnNewButton_3);
 		
 		JPanel panel_AdminProfil = new JPanel();
 		panel_AdminProfil.setBackground(new Color(192, 192, 192));
@@ -1337,7 +1480,6 @@ public class form1 {
 		
 		JMenuItem mitemAdminHome = new JMenuItem("Anasayfa");
 		mitemAdminHome.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		mitemAdminHome.setIcon(new ImageIcon(form1.class.getResource("/images/home.png")));
 		mitemAdminHome.setBackground(new Color(192, 192, 192));
 		mitemAdminHome.setBounds(645, 11, 129, 22);
 		administrator.add(mitemAdminHome);
@@ -1361,7 +1503,7 @@ public class form1 {
 		officer.setLayout(null);
 		
 		JLabel lbl_OfficerLogo = new JLabel("");
-		lbl_OfficerLogo.setIcon(new ImageIcon(form1.class.getResource("/images/logo.png")));
+		lbl_OfficerLogo.setIcon(new ImageIcon(logo));
 		lbl_OfficerLogo.setBounds(10, 11, 177, 96);
 		officer.add(lbl_OfficerLogo);
 		
@@ -1452,8 +1594,13 @@ public class form1 {
 		panel_OfficerSecenekler.add(mitem_OfficerCikisYap);
 		mitem_OfficerCikisYap.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e){
-				JOptionPane.showConfirmDialog(null, "Çýkmak Ýstediðinize Emin misiniz?");
-			}
+				int confirmed = JOptionPane.showConfirmDialog(null,
+						"Çýkmak istediðinize emin misiniz?", "ÝYÝ DÜÞÜN !",
+						JOptionPane.YES_NO_OPTION);
+						if (confirmed == JOptionPane.YES_OPTION)
+						System.exit(0);
+						}
+			
 		});
 		JPanel panel_OfficerIslemler = new JPanel();
 		panel_OfficerIslemler.setBackground(new Color(128, 128, 128));
@@ -1478,7 +1625,7 @@ public class form1 {
 		panel_OfficerGiris.add(label_45);
 		
 		JLabel label_46 = new JLabel("");
-		label_46.setIcon(new ImageIcon(form1.class.getResource("/images/logo.png")));
+		label_46.setIcon(new ImageIcon(logo));
 		label_46.setBounds(185, 173, 177, 96);
 		panel_OfficerGiris.add(label_46);
 		
@@ -1494,14 +1641,6 @@ public class form1 {
 		panel_20.setBounds(10, 11, 207, 212);
 		panel_OfficerKargoGuncelle.add(panel_20);
 		
-		JTextPane textPane_1 = new JTextPane();
-		textPane_1.setText("Bu alanda s\u0131ral\u0131 bir \u015Fekilde i\u015Flem g\u00F6rmekte olan kargolar\u0131n , kargo takip numaralar\u0131n\u0131 g\u00F6receksiniz...");
-		textPane_1.setFont(new Font("Times New Roman", Font.ITALIC, 14));
-		textPane_1.setEditable(false);
-		textPane_1.setBackground(new Color(192, 192, 192));
-		textPane_1.setBounds(10, 77, 187, 88);
-		panel_20.add(textPane_1);
-		
 		textField_22 = new JTextField();
 		textField_22.setColumns(10);
 		textField_22.setBounds(10, 38, 187, 28);
@@ -1512,6 +1651,29 @@ public class form1 {
 		label_48.setFont(new Font("Times New Roman", Font.PLAIN, 14));
 		label_48.setBounds(54, 11, 99, 21);
 		panel_20.add(label_48);
+		
+		table_3 = new JTable();
+		table_3.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent arg0) {
+				int satir = table_3.getSelectedRow();
+				String no = table_3.getValueAt(satir, 0).toString();
+				
+				try
+				{
+					String query2 = "Select Konum from Lokasyon where Lokasyonid='"+no+"'";
+					PreparedStatement pst2 = connection.prepareStatement(query2);
+					ResultSet rs2= pst2.executeQuery();
+					table_4.setModel(DbUtils.resultSetToTableModel(rs2));
+				}
+				catch(Exception E){
+					JOptionPane.showMessageDialog(null, E);
+				}
+			}
+		});
+		table_3.setBackground(new Color(220, 220, 220));
+		table_3.setBounds(10, 77, 187, 124);
+		panel_20.add(table_3);
 		
 		JPanel panel_21 = new JPanel();
 		panel_21.setLayout(null);
@@ -1614,13 +1776,14 @@ public class form1 {
 		panel_22.setBounds(10, 234, 208, 198);
 		panel_OfficerKargoGuncelle.add(panel_22);
 		
-		JTextPane textPane_2 = new JTextPane();
-		textPane_2.setText("Bu alanda kargonun g\u00FCncellenmi\u015F lokasyonlar\u0131 alt alta \u00E7\u0131kacakt\u0131r. \u0130stedi\u011Finiz lokasyonu se\u00E7ip yan tarafta de\u011Fi\u015Ftirebilir veya en sona yeni lokasyon ekleyebilirsiniz.");
-		textPane_2.setFont(new Font("Times New Roman", Font.ITALIC, 14));
-		textPane_2.setEditable(false);
-		textPane_2.setBackground(new Color(192, 192, 192));
-		textPane_2.setBounds(10, 26, 178, 136);
-		panel_22.add(textPane_2);
+		table_4 = new JTable();
+		table_4.setBackground(new Color(220, 220, 220));
+		table_4.setBounds(10, 36, 187, 151);
+		panel_22.add(table_4);
+		
+		JLabel lblGetiiLokasyonlar_1 = new JLabel("Ge\u00E7ti\u011Fi Lokasyonlar");
+		lblGetiiLokasyonlar_1.setBounds(55, 11, 115, 14);
+		panel_22.add(lblGetiiLokasyonlar_1);
 		
 		JPanel panel_OfficerKargoEkle = new JPanel();
 		panel_OfficerKargoEkle.setBackground(new Color(192, 192, 192));
@@ -1639,64 +1802,101 @@ public class form1 {
 		label_56.setBounds(10, 57, 102, 25);
 		panel_23.add(label_56);
 		
-		textField_34 = new JTextField();
-		textField_34.setFont(new Font("Times New Roman", Font.PLAIN, 11));
-		textField_34.setColumns(10);
-		textField_34.setBounds(114, 55, 186, 30);
-		panel_23.add(textField_34);
+		txt_SubeKargoAD = new JTextField();
+		txt_SubeKargoAD.setFont(new Font("Times New Roman", Font.PLAIN, 11));
+		txt_SubeKargoAD.setColumns(10);
+		txt_SubeKargoAD.setBounds(114, 55, 186, 30);
+		panel_23.add(txt_SubeKargoAD);
 		
 		JLabel label_57 = new JLabel("Kargo Cinsi");
 		label_57.setForeground(new Color(105, 105, 105));
 		label_57.setBounds(10, 95, 102, 25);
 		panel_23.add(label_57);
 		
-		textField_35 = new JTextField();
-		textField_35.setFont(new Font("Times New Roman", Font.PLAIN, 11));
-		textField_35.setColumns(10);
-		textField_35.setBounds(114, 93, 186, 30);
-		panel_23.add(textField_35);
+		txt_SubeKargoCins = new JTextField();
+		txt_SubeKargoCins.setFont(new Font("Times New Roman", Font.PLAIN, 11));
+		txt_SubeKargoCins.setColumns(10);
+		txt_SubeKargoCins.setBounds(114, 93, 186, 30);
+		panel_23.add(txt_SubeKargoCins);
 		
 		JLabel label_58 = new JLabel("A\u011F\u0131rl\u0131k");
 		label_58.setForeground(new Color(105, 105, 105));
 		label_58.setBounds(10, 133, 102, 25);
 		panel_23.add(label_58);
 		
-		textField_36 = new JTextField();
-		textField_36.setFont(new Font("Times New Roman", Font.PLAIN, 11));
-		textField_36.setColumns(10);
-		textField_36.setBounds(114, 131, 186, 30);
-		panel_23.add(textField_36);
+		txt_SubekargoAgirlik = new JTextField();
+		txt_SubekargoAgirlik.setFont(new Font("Times New Roman", Font.PLAIN, 11));
+		txt_SubekargoAgirlik.setColumns(10);
+		txt_SubekargoAgirlik.setBounds(114, 131, 186, 30);
+		panel_23.add(txt_SubekargoAgirlik);
 		
 		JLabel label_59 = new JLabel("G\u00F6nderim Adresi :");
 		label_59.setForeground(new Color(105, 105, 105));
 		label_59.setBounds(10, 201, 102, 25);
 		panel_23.add(label_59);
 		
-		JTextArea textArea_9 = new JTextArea();
-		textArea_9.setBounds(114, 206, 186, 69);
-		panel_23.add(textArea_9);
+		JTextArea txt_SubekargoBaslangicAdres = new JTextArea();
+		txt_SubekargoBaslangicAdres.setBounds(114, 206, 186, 69);
+		panel_23.add(txt_SubekargoBaslangicAdres);
 		
 		JLabel label_60 = new JLabel("Var\u0131\u015F Adresi :");
 		label_60.setForeground(new Color(105, 105, 105));
 		label_60.setBounds(10, 282, 102, 25);
 		panel_23.add(label_60);
 		
-		JTextArea textArea_10 = new JTextArea();
-		textArea_10.setBounds(114, 282, 186, 69);
-		panel_23.add(textArea_10);
+		JTextArea txt_SubeKargoBitisAdres = new JTextArea();
+		txt_SubeKargoBitisAdres.setBounds(114, 282, 186, 69);
+		panel_23.add(txt_SubeKargoBitisAdres);
 		
 		JLabel label_61 = new JLabel("Lokasyon :");
 		label_61.setForeground(new Color(105, 105, 105));
 		label_61.setBounds(10, 171, 102, 25);
 		panel_23.add(label_61);
 		
-		textField_37 = new JTextField();
-		textField_37.setFont(new Font("Times New Roman", Font.PLAIN, 11));
-		textField_37.setColumns(10);
-		textField_37.setBounds(114, 169, 186, 30);
-		panel_23.add(textField_37);
+		txt_SubeKargoLokasyon = new JTextField();
+		txt_SubeKargoLokasyon.setFont(new Font("Times New Roman", Font.PLAIN, 11));
+		txt_SubeKargoLokasyon.setColumns(10);
+		txt_SubeKargoLokasyon.setBounds(114, 169, 186, 30);
+		panel_23.add(txt_SubeKargoLokasyon);
 		
 		JButton button_8 = new JButton("Ekle");
+		button_8.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+				if(txt_SubekargoBaslangicAdres.getText().isEmpty() || txt_SubeKargoBitisAdres.getText().isEmpty() || 
+						
+						txt_SubeKargoAD.getText().isEmpty() || txt_SubekargoAgirlik.getText().isEmpty() || 
+						
+						txt_SubeKargoCins.getText().isEmpty())
+							
+						{
+							
+							JOptionPane.showMessageDialog(null, "Tüm Alanlarý Doldurun");
+						}
+						else{
+						try	
+						{
+							String query = "insert into Kargo (Adsoyad,Cins,Agirlik,BaslangicAdres,BitisAdres) VALUES(?,?,?,?,?)";
+							
+							PreparedStatement pst = connection.prepareStatement(query);
+							pst.setString(1, txt_kargoeklead.getText());
+							pst.setString(2, txt_kargoeklecins.getText());
+							pst.setString(3, txt_kargoekleagirlik.getText());
+							pst.setString(4, txt_kargoeklebaslangicadres.getText());
+							pst.setString(5, txt_kargoeklebitisadres.getText());
+							
+							pst.execute();
+							JOptionPane.showMessageDialog(null, "Kayýt Baþarýyla Tamamlandý");
+							
+							pst.close();
+						}
+						catch(Exception e)
+						{
+							JOptionPane.showMessageDialog(null, "Kayýt Eklenemedi");
+						}
+					} 
+			}
+		});
 		button_8.setForeground(Color.WHITE);
 		button_8.setFont(new Font("Georgia", Font.PLAIN, 14));
 		button_8.setBackground(new Color(102, 153, 255));
@@ -1742,9 +1942,9 @@ public class form1 {
 		label_80.setBounds(38, 18, 46, 14);
 		panel_27.add(label_80);
 		
-		Button button_13 = new Button("Sil");
-		button_13.setBounds(122, 361, 227, 50);
-		panel_27.add(button_13);
+		JButton btnNewButton_4 = new JButton("New button");
+		btnNewButton_4.setBounds(102, 370, 242, 40);
+		panel_27.add(btnNewButton_4);
 		
 		JPanel panel_OfficerKullaniciGuncelle = new JPanel();
 		panel_OfficerKullaniciGuncelle.setBackground(new Color(192, 192, 192));
@@ -1820,16 +2020,16 @@ public class form1 {
 		label_70.setBounds(227, 181, 80, 25);
 		panel_OfficerKullaniciGuncelle.add(label_70);
 		
-		TextArea textArea_11 = new TextArea();
-		textArea_11.setBounds(313, 176, 172, 123);
-		panel_OfficerKullaniciGuncelle.add(textArea_11);
-		
 		JButton button_9 = new JButton("G\u00FCncelle");
 		button_9.setForeground(Color.WHITE);
 		button_9.setFont(new Font("Georgia", Font.PLAIN, 14));
 		button_9.setBackground(new Color(102, 153, 255));
 		button_9.setBounds(396, 322, 89, 23);
 		panel_OfficerKullaniciGuncelle.add(button_9);
+		
+		JTextPane textPane_18 = new JTextPane();
+		textPane_18.setBounds(351, 181, 134, 122);
+		panel_OfficerKullaniciGuncelle.add(textPane_18);
 		
 		JPanel panel_OfficerKullaniciEkle = new JPanel();
 		panel_OfficerKullaniciEkle.setBackground(new Color(192, 192, 192));
@@ -1888,16 +2088,16 @@ public class form1 {
 		label_76.setBounds(147, 233, 80, 25);
 		panel_OfficerKullaniciEkle.add(label_76);
 		
-		TextArea textArea_12 = new TextArea();
-		textArea_12.setBounds(233, 228, 172, 123);
-		panel_OfficerKullaniciEkle.add(textArea_12);
-		
 		JButton btnEkle_3 = new JButton("Ekle");
 		btnEkle_3.setForeground(Color.WHITE);
 		btnEkle_3.setFont(new Font("Georgia", Font.PLAIN, 14));
 		btnEkle_3.setBackground(new Color(102, 153, 255));
 		btnEkle_3.setBounds(316, 374, 89, 23);
 		panel_OfficerKullaniciEkle.add(btnEkle_3);
+		
+		JTextPane textPane_19 = new JTextPane();
+		textPane_19.setBounds(271, 233, 134, 118);
+		panel_OfficerKullaniciEkle.add(textPane_19);
 		
 		JPanel panel_OfficerKullaniciProfil = new JPanel();
 		panel_OfficerKullaniciProfil.setForeground(new Color(105, 105, 105));
@@ -1981,7 +2181,6 @@ public class form1 {
 		
 		JMenuItem mitem_OfficerHome = new JMenuItem("Anasayfa");
 		mitem_OfficerHome.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		mitem_OfficerHome.setIcon(new ImageIcon(form1.class.getResource("/images/home.png")));
 		mitem_OfficerHome.setBackground(new Color(192, 192, 192));
 		mitem_OfficerHome.setBounds(645, 11, 129, 22);
 		officer.add(mitem_OfficerHome);
@@ -2003,7 +2202,7 @@ public class form1 {
 		user.setLayout(null);
 		
 		JLabel label_35 = new JLabel("");
-		label_35.setIcon(new ImageIcon(form1.class.getResource("/images/logo.png")));
+		label_35.setIcon(new ImageIcon(logo));
 		label_35.setBounds(10, 11, 177, 96);
 		user.add(label_35);
 		
@@ -2065,8 +2264,12 @@ public class form1 {
 		panel_UserSecenekler.add(mitem_UserSecenekler2);
 		mitem_UserSecenekler2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e){
-				JOptionPane.showConfirmDialog(null, "Çýkmak Ýstediðinize Emin misiniz?");
-			}
+				int confirmed = JOptionPane.showConfirmDialog(null,
+						"Çýkmak istediðinize emin misiniz?", "ÝYÝ DÜÞÜN !",
+						JOptionPane.YES_NO_OPTION);
+						if (confirmed == JOptionPane.YES_OPTION)
+						System.exit(0);
+						}
 		});
 		JPanel panel_UserIslemler = new JPanel();
 		panel_UserIslemler.setBackground(new Color(192, 192, 192));
@@ -2327,7 +2530,6 @@ public class form1 {
 		panel_UserProfil.add(lblKullancAdresVe);
 		
 		JMenuItem mitem_UserHome = new JMenuItem("Anasayfa");
-		mitem_UserHome.setIcon(new ImageIcon(form1.class.getResource("/images/home.png")));
 		mitem_UserHome.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		mitem_UserHome.setBackground(new Color(192, 192, 192));
 		mitem_UserHome.setBounds(645, 11, 129, 22);
@@ -2341,48 +2543,59 @@ public class form1 {
             }
 
         });
+		main.setLayout(null);
 		// Burada Panel Ýçerisindeki iþlemler...
 		
 		JLabel lblKargoTakip = new JLabel("Kargo Takip Numaras\u0131 :");
-		lblKargoTakip.setFont(new Font("Modern No. 20", Font.PLAIN, 14));
 		lblKargoTakip.setBounds(321, 135, 143, 20);
+		lblKargoTakip.setFont(new Font("Modern No. 20", Font.PLAIN, 14));
 		main.add(lblKargoTakip);
-		
-		TextField textKargoid = new TextField();
-		textKargoid.setBounds(215, 161, 347, 32);
-		main.add(textKargoid);
-		
-		JTextPane Panelsonuc = new JTextPane();
-		Panelsonuc.setBorder(new SoftBevelBorder(BevelBorder.LOWERED, null, null, null, null));
-		Panelsonuc.setBackground(new Color(220, 220, 220));
-		Panelsonuc.setEditable(false);
-		Panelsonuc.setBounds(215, 236, 347, 289);
-		main.add(Panelsonuc);
 
 		JLabel lblCopyrightMain = new JLabel("Nku | Computer Engineering");
-		lblCopyrightMain.setFont(new Font("Tahoma", Font.PLAIN, 9));
 		lblCopyrightMain.setBounds(329, 546, 135, 14);
+		lblCopyrightMain.setFont(new Font("Tahoma", Font.PLAIN, 9));
 		main.add(lblCopyrightMain);
 		
 
 		JButton btnSorgula = new JButton("Sorgula");
+		btnSorgula.setBounds(341, 205, 89, 23);
 		btnSorgula.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		btnSorgula.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) 
 			{
 				//Sorgulama Ýþlemi Buraya Yazýlacak.
+				
+				
+				try	
+				{
+					String query = "Select Tarih,Konum from Lokasyon where Lokasyonid=?";
+					
+					PreparedStatement pst = connection.prepareStatement(query);
+					pst.setString(1, txt_mainsorgula.getText());
+					ResultSet rs = pst.executeQuery();
+					
+					table.setModel(DbUtils.resultSetToTableModel(rs));
+					
+					
+					
+					
+					
+					
+				}
+				catch(Exception e)
+				{
+					JOptionPane.showMessageDialog(null, "Farklý Bir Kullanýcý Adý Girin");
+				}
 			}
 		});
 		btnSorgula.setBackground(new Color(105, 105, 105));
 		btnSorgula.setForeground(new Color(255, 255, 255));
 		btnSorgula.setFont(new Font("Georgia", Font.PLAIN, 14));
-		btnSorgula.setBounds(341, 205, 89, 23);
 		main.add(btnSorgula);
 		
 		JMenuItem mnýtmLogin = new JMenuItem("Giri\u015F Yap");
-		mnýtmLogin.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		mnýtmLogin.setIcon(new ImageIcon(form1.class.getResource("/images/Icon_user.png")));
 		mnýtmLogin.setBounds(645, 11, 129, 22);
+		mnýtmLogin.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		mnýtmLogin.setBackground(new Color(192, 192, 192));
 		main.add(mnýtmLogin);
 		mnýtmLogin.addActionListener(new ActionListener() {
@@ -2392,16 +2605,47 @@ public class form1 {
 			}
 		});
 		JMenuItem mnýtmRegister = new JMenuItem("Kay\u0131t Ol");
+		mnýtmRegister.setBounds(645, 38, 129, 22);
 		mnýtmRegister.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		mnýtmRegister.setBackground(new Color(192, 192, 192));
-		mnýtmRegister.setIcon(new ImageIcon(form1.class.getResource("/images/register_icon.gif")));
-		mnýtmRegister.setBounds(645, 38, 129, 22);
 		main.add(mnýtmRegister);
 		
 		JLabel lblLogoMain = new JLabel("");
-		lblLogoMain.setIcon(new ImageIcon(form1.class.getResource("/images/logo.png")));
 		lblLogoMain.setBounds(304, 28, 177, 96);
+		
+		lblLogoMain.setIcon(new ImageIcon(logo));
 		main.add(lblLogoMain);
+		
+		txt_mainsorgula = new JTextField();
+		txt_mainsorgula.setBounds(215, 161, 347, 35);
+		main.add(txt_mainsorgula);
+		txt_mainsorgula.setColumns(10);
+		
+		JPanel panel_10 = new JPanel();
+		panel_10.setBackground(new Color(220, 220, 220));
+		panel_10.setBorder(new SoftBevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		panel_10.setBounds(215, 239, 347, 289);
+		main.add(panel_10);
+		panel_10.setLayout(null);
+		
+		table = new JTable();
+		table.setBorder(null);
+		table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		table.setModel(new DefaultTableModel(
+			new Object[][] {
+			},
+			new String[] {
+			}
+		));
+		table.setForeground(SystemColor.textText);
+		table.setFont(new Font("Times New Roman", Font.PLAIN, 15));
+		table.setFillsViewportHeight(true);
+		table.setBackground(new Color(220, 220, 220));
+		table.setBounds(0, 0, 347, 289);
+		
+		panel_10.add(table);
+		
+		
 		 mnýtmRegister.addActionListener(new ActionListener() {
 	            public void actionPerformed(ActionEvent e) {
 	                register.setVisible(true);
@@ -2414,7 +2658,6 @@ public class form1 {
 			JMenuItem mitem_LoginHome = new JMenuItem("Anasayfa");
 			mitem_LoginHome.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 			mitem_LoginHome.setBackground(new Color(192, 192, 192));
-			mitem_LoginHome.setIcon(new ImageIcon(form1.class.getResource("/images/home.png")));
 			mitem_LoginHome.setBounds(645, 11, 129, 22);
 			login.add(mitem_LoginHome);
 			mitem_LoginHome.addActionListener(new ActionListener() {
@@ -2433,27 +2676,71 @@ public class form1 {
 			btn_LoginGiris.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) 
 				{
-					String kadi=txt_LoginKadi.getText();
 					
-					
-					if(kadi.equals("admin")){
-						administrator.setVisible(true);
-						login.setVisible(false); 
-					}
-					else if(kadi.equals("sube")){
-						officer.setVisible(true);
-						login.setVisible(false);
-					}
-					else if(kadi.equals("user")){
-						user.setVisible(true);
-						login.setVisible(false);
+					try	
+					{
+						String query = "Select* from Kullanici where Username=? and Password=?";
 						
-					}
-					else{
-						JOptionPane.showMessageDialog(null,"Hatalý Giriþ Denemesi");
-					}
-					
 						
+						
+						
+						PreparedStatement pst = connection.prepareStatement(query);
+						pst.setString(1, txt_LoginKadi.getText());
+						pst.setString(2, txt_LoginSifre.getText());
+						ResultSet rs = pst.executeQuery();
+						
+						int count=0;
+						while(rs.next()){
+							count++;
+							
+						}
+						if(count==1)
+						{
+							String isim = txt_LoginKadi.getText();
+							JOptionPane.showMessageDialog(null,isim+" Giriþiniz Baþarýlý Olmuþtur.");
+							String query2="Select Yoneticimi from Kullanici where Username='"+txt_LoginKadi.getText()+"'";
+							String query3="Select Subemi from Kullanici where Username ='"+txt_LoginKadi.getText()+"'";
+							
+							PreparedStatement yoneticimi = connection.prepareStatement(query2);
+							ResultSet yoneticimibu = yoneticimi.executeQuery();
+							
+							PreparedStatement subemi = connection.prepareStatement(query3);
+							ResultSet subemibu = subemi.executeQuery();
+							
+							
+							String yonetici = yoneticimibu.getString(1);
+							String sube = subemibu.getString(1);
+							if(yonetici.equals("true")){
+								administrator.setVisible(true);
+								login.setVisible(false); 
+							}
+							else if(sube.equals("true")){
+								officer.setVisible(true);
+								login.setVisible(false);
+							}
+							else{
+								user.setVisible(true);
+								login.setVisible(false);
+							}
+							
+						}
+						
+						else if(count>1){
+							JOptionPane.showMessageDialog(null, "Baþarýsýz");
+
+						}
+						else{
+							JOptionPane.showMessageDialog(null, "Hatalý Kullanýcý adý veya þifre");
+
+						}
+						rs.close();
+						pst.close();
+					}
+					catch(Exception E)
+					{
+						JOptionPane.showMessageDialog(null, E);
+					}
+				
 					
 				}
 			});
@@ -2471,6 +2758,44 @@ public class form1 {
 					panel_AdminKargoSil.setVisible(false);
 					panel_AdminSubeGuncelle.setVisible(true);
 					panel_AdminProfil.setVisible(false);
+					
+					try	
+					{
+						String query = "Select Adsoyad,Username,Adres from Kullanici where Subemi='true' ";
+						
+						
+						PreparedStatement pst = connection.prepareStatement(query);
+						
+						
+						ResultSet rs = pst.executeQuery();
+						
+						int colcount = rs.getMetaData().getColumnCount();
+			           DefaultTableModel tm = new DefaultTableModel(); //Model oluþturuyoruz
+			            
+			         for(int i=1;i<=colcount;i++){
+			                tm.addColumn(rs.getMetaData().getColumnName(i)); //Tabloya sütun ekliyoruz veritabanýmýzdaki sütun ismiyle ayný olacak þekilde
+
+			         }
+			            	 
+			            	 
+			            	 
+			           while(rs.next())
+		               {
+		               Object[] row = new Object[colcount];
+		                 for(int i=1;i<=colcount;i++)
+		                       row[i-1] = rs.getObject(i);
+		                    tm.addRow(row);
+		                }
+						
+			           table_1.setModel(tm);
+						
+						
+						
+					}
+					catch(Exception E)
+					{
+						JOptionPane.showMessageDialog(null, E);
+					}
 					
 					
 				}
@@ -2506,6 +2831,27 @@ public class form1 {
 					panel_AdminKargoSil.setVisible(false);
 					panel_AdminProfil.setVisible(false);
 					panel_AdminSubeSil.setVisible(true);
+					try	
+					{
+						String query = "Select Username,adres from Kullanici where Subemi='true'";
+						
+						PreparedStatement pst = connection.prepareStatement(query);
+						
+						ResultSet rs = pst.executeQuery();
+						
+						table_2.setModel(DbUtils.resultSetToTableModel(rs));
+						
+						
+						
+						
+						
+						
+					}
+					catch(Exception E)
+					{
+						JOptionPane.showMessageDialog(null, "Farklý Bir Kullanýcý Adý Girin");
+					}
+					
 					
 				}
 			});
@@ -2524,6 +2870,43 @@ public class form1 {
 					panel_AdminKargoSil.setVisible(false);
 					panel_AdminProfil.setVisible(false);
 					
+					try	
+					{
+						String query = "Select Adsoyad,Username,Adres from Kullanici ";
+						
+						
+						PreparedStatement pst = connection.prepareStatement(query);
+						
+						
+						ResultSet rs = pst.executeQuery();
+						
+						int colcount = rs.getMetaData().getColumnCount();
+			           DefaultTableModel tm = new DefaultTableModel(); //Model oluþturuyoruz
+			            
+			         for(int i=1;i<=colcount;i++){
+			                tm.addColumn(rs.getMetaData().getColumnName(i)); //Tabloya sütun ekliyoruz veritabanýmýzdaki sütun ismiyle ayný olacak þekilde
+
+			         }
+			            	 
+			            	 
+			            	 
+			           while(rs.next())
+		               {
+		               Object[] row = new Object[colcount];
+		                 for(int i=1;i<=colcount;i++)
+		                       row[i-1] = rs.getObject(i);
+		                    tm.addRow(row);
+		                }
+						
+			           table_5.setModel(tm);
+						
+						
+						
+					}
+					catch(Exception E)
+					{
+						JOptionPane.showMessageDialog(null, E);
+					}
 					
 				}
 			});
@@ -2559,7 +2942,43 @@ public class form1 {
 					panel_AdminKargoSil.setVisible(false);
 					panel_AdminProfil.setVisible(false);
 					
-					
+					try	
+					{
+						String query = "Select Adsoyad,Username,Adres from Kullanici where yoneticimi='false' and subemi='false'";
+						
+						
+						PreparedStatement pst = connection.prepareStatement(query);
+						
+						
+						ResultSet rs = pst.executeQuery();
+						
+						int colcount = rs.getMetaData().getColumnCount();
+			           DefaultTableModel tm = new DefaultTableModel(); //Model oluþturuyoruz
+			            
+			         for(int i=1;i<=colcount;i++){
+			                tm.addColumn(rs.getMetaData().getColumnName(i)); //Tabloya sütun ekliyoruz veritabanýmýzdaki sütun ismiyle ayný olacak þekilde
+
+			         }
+			            	 
+			            	 
+			            	 
+			           while(rs.next())
+		               {
+		               Object[] row = new Object[colcount];
+		                 for(int i=1;i<=colcount;i++)
+		                       row[i-1] = rs.getObject(i);
+		                    tm.addRow(row);
+		                }
+						
+			           table_6.setModel(tm);
+						
+						
+						
+					}
+					catch(Exception E)
+					{
+						JOptionPane.showMessageDialog(null, E);
+					}
 				}
 			});
 			
@@ -2577,6 +2996,27 @@ public class form1 {
 					panel_AdminKargoSil.setVisible(false);
 					panel_AdminProfil.setVisible(false);
 					
+					try	
+					{
+						String query = "Select Kargoid from Kargo";
+						
+						
+						PreparedStatement pst = connection.prepareStatement(query);
+						
+						
+						ResultSet rs = pst.executeQuery();
+						
+						
+						tablekargoguncelle.setModel(DbUtils.resultSetToTableModel(rs));
+						
+						
+						
+						
+					}
+					catch(Exception E)
+					{
+						JOptionPane.showMessageDialog(null, E);
+					}
 					
 				}
 			});
@@ -2644,6 +3084,44 @@ public class form1 {
 					panel_OfficerKullaniciEkle.setVisible(false);
 					panel_OfficerKullaniciGuncelle.setVisible(false);
 					panel_OfficerKullaniciProfil.setVisible(false);
+					
+					try	
+					{
+						String query = "Select Kargoid,Adsoyad from Kargo";
+						
+						
+						PreparedStatement pst = connection.prepareStatement(query);
+						
+						
+						ResultSet rs = pst.executeQuery();
+						
+						int colcount = rs.getMetaData().getColumnCount();
+			           DefaultTableModel tm = new DefaultTableModel(); //Model oluþturuyoruz
+			            
+			         for(int i=1;i<=colcount;i++){
+			                tm.addColumn(rs.getMetaData().getColumnName(i)); //Tabloya sütun ekliyoruz veritabanýmýzdaki sütun ismiyle ayný olacak þekilde
+
+			         }
+			            	 
+			            	 
+			            	 
+			           while(rs.next())
+		               {
+		               Object[] row = new Object[colcount];
+		                 for(int i=1;i<=colcount;i++)
+		                       row[i-1] = rs.getObject(i);
+		                    tm.addRow(row);
+		                }
+						
+			           table_3.setModel(tm);
+						
+						
+						
+					}
+					catch(Exception E)
+					{
+						JOptionPane.showMessageDialog(null, E);
+					}
 					
 					
 					
